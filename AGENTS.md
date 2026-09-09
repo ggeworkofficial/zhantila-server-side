@@ -4,7 +4,7 @@
 
 VendorBridge API: an Express 5 + TypeScript (CommonJS) e-commerce REST API. Buyers shop and order; sellers list inventory; a reseller program exists (applications, shares, clicks, payouts) with services/repositories/models in place but **no routes/controllers yet**. Admins manage users, categories, sellers, inventory, orders, receipts, complaints, logistics, payment accounts, and settings.
 
-A newer "unified marketplace" layer exists on top of the inventory flow: `listings` (kind `product | service | skill`, moderation status, bulk-pricing tiers via `listing_price_tiers`, per-listing commission settings), seller `follows`, referral commissions (`referrals` + wallet endpoints), and `withdrawals` with an admin approval flow. These endpoints were originally merged with controllers that queried Sequelize models directly; they were refactored into the standard layered pattern (services + repositories) on 2026-08-22. **Remaining known violations: `src/service/cron.service.ts` and parts of `src/service/order.service.ts` still query Sequelize models directly, and marketplace routes ship no zod validators (adding validators would change validation responses and was deferred) — do not copy that pattern for new work** (see "Architecture decisions to preserve").
+A newer "unified marketplace" layer exists on top of the inventory flow: `listings` (kind `product | service | skill`, moderation status, bulk-pricing tiers via `listing_price_tiers`, per-listing commission settings), seller `follows`, referral commissions (`referrals` + wallet endpoints), and `withdrawals` with an admin approval flow. These endpoints were originally merged with controllers that queried Sequelize models directly; they were refactored into the standard layered pattern (services + repositories) on 2026-08-22 (commit `9b1c30b`). **Remaining known violations: `src/service/cron.service.ts`, parts of `src/service/order.service.ts`, and `src/service/logistics.service.ts` still query Sequelize models directly; `updateProductImage` in `src/repositories/product-image.repository.ts` creates/commits/rolls back its own transaction instead of receiving one from the controller; and marketplace routes ship no zod validators (adding validators would change validation responses and was deferred) — do not copy these patterns for new work** (see "Architecture decisions to preserve").
 
   
 
@@ -56,7 +56,20 @@ A newer "unified marketplace" layer exists on top of the inventory flow: `listin
 
 - Sessions: Redis keyed by `session_id` cookie (httpOnly, 7-day TTL, refreshed when < 3 days left). `session_id` returned by login but never exposed in JSON responses (controllers strip it).
 
-- `uploads/` files ARE committed to git (not gitignored) — don't add binary junk casually.
+- `uploads/` is gitignored (added to `.gitignore` in commit `7727016`); it holds multer-uploaded image files at runtime and is not committed. The directory is currently empty.
+
+  
+
+## Docker / Infrastructure
+
+  
+
+- Local development services are provided through `compose.yml` (`docker compose up -d`).
+- PostgreSQL runs as `postgres:17` in container `zhantila-postgres`, exposed on host port `5432`.
+- Redis runs as `redis:7` in container `zhantila-redis`, exposed on host port `6379`.
+- Postgres data persists across restarts via the named Docker volume `postgres_data`.
+- Postgres database name, user, and password are supplied to the container through `${DB_NAME}`, `${DB_USER}`, `${DB_PASSWORD}` (read from `.env`); the application connects according to `.env` (`DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD`, `REDIS_URL`).
+- `compose.yml` is the source of truth for the exact container/image/port/volume configuration. `compose.yml` is currently untracked in git.
 
   
 
@@ -116,7 +129,8 @@ Layered, single-responsibility per directory. Route wiring order: `authenticate`
 
 - UUID PKs are generated manually with `randomUUID()` in services, not by the DB.
 
-- Transactions: pass a `Transaction` from `sequelize` into repository methods (see `src/service/reseller/` and `src/repositories/reseller.repository.ts`).
+- Transaction convention (the reseller domain in `src/service/reseller/` + `src/repositories/reseller.repository.ts` is the cleanest example): the **controller** creates the transaction via `Postgres.getInstance().transaction()`, commits it on success, and rolls back in `catch` → `next(error)`; the **service** receives the `Transaction` parameter, orchestrates business logic, and passes it through to repositories — services never create/commit/roll back; the **repository** receives the transaction and applies it to Sequelize operations (including row-level locks like `lock: transaction.LOCK.UPDATE`), and never creates/commits/rolls back. Read-only lookups may omit the transaction parameter.
+  - **Known violation:** `updateProductImage` in `src/repositories/product-image.repository.ts` creates/commits/rolls back its own transaction instead of receiving one from the controller. Do not copy that pattern.
 
 - tsconfig enables `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess`; satisfy them with spread-omit patterns like `...(payload.role && { role: payload.role })`, and `removeUndefined` before updates.
 
@@ -146,7 +160,7 @@ Layered, single-responsibility per directory. Route wiring order: `authenticate`
 
   
 
-- Strict layering: DB access lives only in `repositories/`; controllers stay thin; business logic in `service/`. **Known remaining violations (merged code, do not replicate):** `src/service/cron.service.ts` and parts of `src/service/order.service.ts` query Sequelize models directly, and the marketplace routes ship no zod validators. Treat these as legacy debt to be refactored into the layered pattern, not as a template.
+- Strict layering: DB access lives only in `repositories/`; controllers stay thin; business logic in `service/`. **Known remaining violations (merged code, do not replicate):** `src/service/cron.service.ts`, parts of `src/service/order.service.ts`, and `src/service/logistics.service.ts` query Sequelize models directly, `updateProductImage` in `src/repositories/product-image.repository.ts` manages its own transaction, and the marketplace routes ship no zod validators. Treat these as legacy debt to be refactored into the layered pattern, not as a template.
 
 - Session-based auth with role captured at login; ownership checks via `checkOwnershipOrAdmin`.
 
