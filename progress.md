@@ -14,6 +14,12 @@ Concise development log. Update after substantial implementation work. Not a dup
 
 ## Completed
 
+- **OpenAPI 3.2 spec integration (2026-09-11)**: added a response-schema layer and wired a modular OpenAPI document into the already-running Swagger UI (`/api-docs`) — zero behavior changes to routes/controllers/validation/logic:
+  - New `src/response/*.response.ts` (17 files, one per domain) defining zod schemas + `z.infer` types mirroring each controller's actual JSON payload (optionals/nullables aligned to real TS return types). Union `...Any` schemas/types added where a single controller emits multiple payload shapes (e.g. `getMeAnyResponse`, `createReviewAnyResponse`, `getReceiptAnyResponse`, `updateProductAnyResponse`).
+  - Controllers across all 17 domains typed with `Response<InferredType>` (`src/controllers/*.controller.ts`); runtime payloads unchanged. In-flight RBAC controller edits were preserved.
+  - New `src/openapi/` layer: `paths/*.path.ts` (18 modules, ~50 path entries) following the existing `category.path.ts` pattern — request bodies/query/path params from validators, error responses via `errorResponse`. Category PUT/DELETE added (were missing). Marketplace domains (`listing`, `follow`, `referral`, `withdrawal`) have no zod validators, so their path files inline local zod schemas that mirror the routes' actual bodies/query (listing create/update documented as `multipart/form-data`). `settings` request schemas are inlined too because its validator uses `z.custom()`, which `zod-openapi` cannot represent.
+  - `document.ts` registers all path modules; `openapi.json` regenerated at repo root (run `node dist/openapi/generate.js` after `npm run build`). No npm script was added for generation.
+  - `npm run build` (tsc) passes; `openapi.json` reports `openapi: 3.2.0` with 50 paths.
 - **Docker Compose dev infrastructure**: added `compose.yml` (untracked) providing Postgres 17 + Redis 7 containers for local development; `uploads/` added to `.gitignore` (both part of commit `7727016`).
 - **Dependency/vulnerability pass (2026-08-26, commit `bef5a51`)**: `package-lock.json` only (restaged dependencies); no source changes.
 - **Unified-marketplace layering refactor**: moved `listing`, `follow`, `referral`, `withdrawal` endpoints into the canonical layered pattern with zero route/schema/response-shape changes. Work done on/around 2026-08-22 and committed as `9b1c30b` (2026-08-26):
