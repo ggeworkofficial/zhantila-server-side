@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { ReferralService } from '../service/referral.service';
+import { GetMyReferralsResponse, GetWalletResponse, TrackClickResponse } from '../response/referral.response';
 
 const referralService = new ReferralService();
 
 export class ReferralController {
-  public async getWallet(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getWallet(req: Request, res: Response<GetWalletResponse>, next: NextFunction): Promise<void> {
     try {
       const user_id = req.user!.id;
 
@@ -16,7 +17,7 @@ export class ReferralController {
     }
   }
 
-  public async getMyReferrals(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getMyReferrals(req: Request, res: Response<GetMyReferralsResponse>, next: NextFunction): Promise<void> {
     try {
       const user_id = req.user!.id;
       const page = Number(req.query.page ?? 1);
@@ -30,7 +31,7 @@ export class ReferralController {
     }
   }
 
-  public async trackClick(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async trackClick(req: Request, res: Response<TrackClickResponse>, next: NextFunction): Promise<void> {
     try {
       const { ref_code, listing_id } = req.body;
 

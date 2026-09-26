@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { CreateSellerBody, GetOneSellerParams, GetAllSellersQuery, UpdateSellerBody } from "../validators/seller.validator";
 import SellerService from "../service/seller.service";
+import { CreateSellerResponse, DeleteSellerResponse, GetAllSellersResponse, GetOneSellerResponse, UpdateSellerResponse } from "../response/seller.response";
 
-export const createSeller = async (req: Request<{}, any, CreateSellerBody>, res: Response, next: NextFunction) => {
+export const createSeller = async (req: Request<{}, any, CreateSellerBody>, res: Response<CreateSellerResponse>, next: NextFunction) => {
     try {
         const body = req.body;
         const seller = await new SellerService().createSeller(body);
@@ -16,7 +17,7 @@ export const createSeller = async (req: Request<{}, any, CreateSellerBody>, res:
     }
 }
 
-export const getOneSeller = async (req: Request<GetOneSellerParams>, res: Response, next: NextFunction) => {
+export const getOneSeller = async (req: Request<GetOneSellerParams>, res: Response<GetOneSellerResponse>, next: NextFunction) => {
     try {
         const params = req.params;
         const seller = await new SellerService().getOneSeller(params);
@@ -27,7 +28,7 @@ export const getOneSeller = async (req: Request<GetOneSellerParams>, res: Respon
     }
 }
 
-export const getAllSellers = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllSellers = async (req: Request, res: Response<GetAllSellersResponse>, next: NextFunction) => {
     try {
         const query = (req as any).validated?.query as GetAllSellersQuery;
         const sellers = await new SellerService().getAllSellers(query);
@@ -38,7 +39,7 @@ export const getAllSellers = async (req: Request, res: Response, next: NextFunct
     }
 }
 
-export const updateSeller = async (req: Request<GetOneSellerParams, any, UpdateSellerBody>, res: Response, next: NextFunction) => {
+export const updateSeller = async (req: Request<GetOneSellerParams, any, UpdateSellerBody>, res: Response<UpdateSellerResponse>, next: NextFunction) => {
     try {
         const params = req.params;
         const body = req.body;
@@ -53,7 +54,7 @@ export const updateSeller = async (req: Request<GetOneSellerParams, any, UpdateS
     }
 }
 
-export const deleteSeller = async (req: Request<GetOneSellerParams>, res: Response, next: NextFunction) => {
+export const deleteSeller = async (req: Request<GetOneSellerParams>, res: Response<DeleteSellerResponse>, next: NextFunction) => {
     try {
         const params = req.params;
         const success = await new SellerService().deleteSeller(params);

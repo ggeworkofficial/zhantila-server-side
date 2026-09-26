@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { ComplaintMessageService } from '../service/complaint-message.service';
 import { CreateComplaintMessageBody, GetComplaintMessageParam, GetComplaintMessagesQuery } from '../validators/complaint-message.validator';
 import { createError } from '../helpers/error';
+import { CreateComplaintMessageResponse, GetComplaintMessageResponse, GetComplaintMessagesResponse } from '../response/complaint-message.response';
 
 const complaintMessageService = new ComplaintMessageService();
 
-export const createComplaintMessage = async (req: Request<{}, any, CreateComplaintMessageBody>, res: Response, next: NextFunction) => {
+export const createComplaintMessage = async (req: Request<{}, any, CreateComplaintMessageBody>, res: Response<CreateComplaintMessageResponse>, next: NextFunction) => {
   const data = req.body;
   const user_id = req.user?.id;
   const user_role = req.user?.role;
@@ -20,7 +21,7 @@ export const createComplaintMessage = async (req: Request<{}, any, CreateComplai
   }
 };
 
-export const getComplaintMessage = async (req: Request<GetComplaintMessageParam>, res: Response, next: NextFunction) => {
+export const getComplaintMessage = async (req: Request<GetComplaintMessageParam>, res: Response<GetComplaintMessageResponse>, next: NextFunction) => {
   const { id } = req.params;
   const user_id = req.user?.id;
   const user_role = req.user?.role;
@@ -35,7 +36,7 @@ export const getComplaintMessage = async (req: Request<GetComplaintMessageParam>
   }
 };
 
-export const getComplaintMessages = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getComplaintMessages = async (req: Request<{}, any, {}, any>, res: Response<GetComplaintMessagesResponse>, next: NextFunction) => {
   const user_id = req.user?.id;
   const user_role = req.user?.role;
   const query = (req as any).validated?.query as GetComplaintMessagesQuery;

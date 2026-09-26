@@ -4,11 +4,12 @@ import { CreateInventoryBody, GetProductParam, GetInventoryQuery, UpdateInventor
 import Postgres from '../connection/postgres';
 import { ProductImageService } from '../service/product-image.service';
 import { deleteFiles } from '../utils/cleanUpFile';
+import { CreateProductResponse, GetInventoryResponse, GetProductResponse, RemoveProductResponse, UpdateProductResponse } from '../response/inventory.response';
 
 const inventoryService = new InventoryService();
 const productImageService = new ProductImageService();
 
-export const createProduct = async (req: Request<{}, any, CreateInventoryBody>, res: Response, next: NextFunction) => {
+export const createProduct = async (req: Request<{}, any, CreateInventoryBody>, res: Response<CreateProductResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const files = req.files as Express.Multer.File[] || [];
     const fileNames = files.map(file => file.filename);
@@ -39,7 +40,7 @@ export const createProduct = async (req: Request<{}, any, CreateInventoryBody>, 
     }
 };
 
-export const getProduct = async (req: Request<GetProductParam>, res: Response, next: NextFunction) => {
+export const getProduct = async (req: Request<GetProductParam>, res: Response<GetProductResponse>, next: NextFunction) => {
     try {
         const { id } = req.params;
         const result = await inventoryService.getOne(id);
@@ -49,7 +50,7 @@ export const getProduct = async (req: Request<GetProductParam>, res: Response, n
     }
 };
 
-export const getInventory = async (req: Request<{}, any, any, any>, res: Response, next: NextFunction) => {
+export const getInventory = async (req: Request<{}, any, any, any>, res: Response<GetInventoryResponse>, next: NextFunction) => {
     try {
         const query = (req as any).validated?.query as GetInventoryQuery;
         const result = await inventoryService.getAll(query);
@@ -59,7 +60,7 @@ export const getInventory = async (req: Request<{}, any, any, any>, res: Respons
     }
 };
 
-export const updateProduct = async (req: Request<GetProductParam, any, UpdateInventoryBody>, res: Response, next: NextFunction) => {
+export const updateProduct = async (req: Request<GetProductParam, any, UpdateInventoryBody>, res: Response<UpdateProductResponse>, next: NextFunction) => {
     try {
         const { id } = req.params;
         const data = req.body;
@@ -78,7 +79,7 @@ export const updateProduct = async (req: Request<GetProductParam, any, UpdateInv
     }
 };
 
-export const removeProduct = async (req: Request<GetProductParam>, res: Response, next: NextFunction) => {
+export const removeProduct = async (req: Request<GetProductParam>, res: Response<RemoveProductResponse>, next: NextFunction) => {
     try {
         const { id } = req.params;
         const images = await inventoryService.remove(id);

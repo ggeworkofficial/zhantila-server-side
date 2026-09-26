@@ -4,10 +4,11 @@ import Postgres from "../connection/postgres";
 import { deleteFiles } from "../utils/cleanUpFile";
 import { ReceiptService } from "../service/receipt.service";
 import { createError } from "../helpers/error";
+import { CreateReceiptResponse, GetReceiptResponse, GetReceiptsResponse, UpdateReceiptResponse } from "../response/receipt.response";
 
 
 const receiptService = new ReceiptService();
-export const createReceiptController = async (req: Request<{}, any, CreateReceiptBody>, res: Response, next: NextFunction) => {
+export const createReceiptController = async (req: Request<{}, any, CreateReceiptBody>, res: Response<CreateReceiptResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const body = req.body;
     const user_id = req.user?.id;
@@ -34,7 +35,7 @@ export const createReceiptController = async (req: Request<{}, any, CreateReceip
     }
 }
 
-export const getReceiptController = async (req: Request<GetReceiptParam>, res: Response, next: NextFunction) => {
+export const getReceiptController = async (req: Request<GetReceiptParam>, res: Response<GetReceiptResponse>, next: NextFunction) => {
     const user_id = req.user?.id;
     const user_role = req.user?.role;
     const receipt_id = req.params.id;
@@ -49,7 +50,7 @@ export const getReceiptController = async (req: Request<GetReceiptParam>, res: R
     }
 }
 
-export const getReceipts = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getReceipts = async (req: Request<{}, any, {}, any>, res: Response<GetReceiptsResponse>, next: NextFunction) => {
     const payload = (req as any).validated?.query as GetReceiptsQuery;
     const user_id = req.user?.id;
     const user_role = req.user?.role;
@@ -65,7 +66,7 @@ export const getReceipts = async (req: Request<{}, any, {}, any>, res: Response,
     }
 }
 
-export const updateReceipt = async (req: Request<GetReceiptParam, any, UpdateReceiptsBody>, res: Response, next: NextFunction) => {
+export const updateReceipt = async (req: Request<GetReceiptParam, any, UpdateReceiptsBody>, res: Response<UpdateReceiptResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const payload = req.body;
     const user_id = req.user?.id;

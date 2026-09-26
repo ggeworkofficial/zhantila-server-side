@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import Postgres from '../connection/postgres';
 import { WithdrawalService } from '../service/withdrawal.service';
+import { GetMyWithdrawalsResponse, GetWithdrawalsResponse, ProcessWithdrawalResponse, RequestWithdrawalResponse } from '../response/withdrawal.response';
 
 const withdrawalService = new WithdrawalService();
 
 export class WithdrawalController {
-  public async requestWithdrawal(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async requestWithdrawal(req: Request, res: Response<RequestWithdrawalResponse>, next: NextFunction): Promise<void> {
     const transaction = await Postgres.getInstance().transaction();
     try {
       const user_id = req.user!.id;
@@ -28,7 +29,7 @@ export class WithdrawalController {
     }
   }
 
-  public async getMyWithdrawals(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getMyWithdrawals(req: Request, res: Response<GetMyWithdrawalsResponse>, next: NextFunction): Promise<void> {
     try {
       const user_id = req.user!.id;
       const page = Number(req.query.page ?? 1);
@@ -42,7 +43,7 @@ export class WithdrawalController {
     }
   }
 
-  public async getWithdrawals(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getWithdrawals(req: Request, res: Response<GetWithdrawalsResponse>, next: NextFunction): Promise<void> {
     try {
       const page = Number(req.query.page ?? 1);
       const limit = Number(req.query.limit ?? 10);
@@ -55,7 +56,7 @@ export class WithdrawalController {
     }
   }
 
-  public async processWithdrawal(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async processWithdrawal(req: Request, res: Response<ProcessWithdrawalResponse>, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
       const admin_id = req.user!.id;

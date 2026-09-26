@@ -29,7 +29,8 @@ import { checkRole, Role } from './middleware/roleChecker';
 import { checkOwnershipOrAdmin } from "./middleware/ownershipOrAdminChecker";
 import path from 'path';
 import { initCronJobs } from './service/cron.service';
-
+import swaggerUi from "swagger-ui-express";
+import document from "./openapi/document";
 
 dotenv.config();
 
@@ -84,7 +85,8 @@ declare module "express-serve-static-core" {
     app.use('/api', referralRoutes); // Handles /api/wallet and /api/referrals
     app.use('/api/withdrawals', withdrawalRoutes);
     app.use('/uploads', express.static(path.join(__dirname, "../uploads")));
-
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(document));
+    
     app.use((req, res) => {
       res.status(404).send('Page not found');
     })

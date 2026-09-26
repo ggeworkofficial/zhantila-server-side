@@ -3,10 +3,11 @@ import { CreateOrderBody, GetOrderParam, GetOrdersForAdminQuery, UpdateOrderBody
 import { OrderService } from "../service/order.service";
 import Postgres from "../connection/postgres";
 import { createError } from "../helpers/error";
+import { CreateOrderResponse, GetMyOrdersResponse, GetOrderResponse, GetOrdersResponse, UpdateOrderResponse } from "../response/order.response";
 
 
 const orderService = new OrderService();
-export const createOrder = async (req: Request<{}, any, CreateOrderBody>, res: Response, next: NextFunction) => {
+export const createOrder = async (req: Request<{}, any, CreateOrderBody>, res: Response<CreateOrderResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const body = req.body;
     const user_id = req.user?.id;
@@ -27,7 +28,7 @@ export const createOrder = async (req: Request<{}, any, CreateOrderBody>, res: R
     }
 } 
 
-export const getOrder = async (req: Request<GetOrderParam>, res: Response, next: NextFunction) => {
+export const getOrder = async (req: Request<GetOrderParam>, res: Response<GetOrderResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const role = req.user?.role;
     const userId = req.user?.id;
@@ -46,7 +47,7 @@ export const getOrder = async (req: Request<GetOrderParam>, res: Response, next:
     }
 }
 
-export const getOrders = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getOrders = async (req: Request<{}, any, {}, any>, res: Response<GetOrdersResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const role = req.user?.role;
     const userId = req.user?.id;
@@ -66,7 +67,7 @@ export const getOrders = async (req: Request<{}, any, {}, any>, res: Response, n
     }
 }
 
-export const getMyOrders = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getMyOrders = async (req: Request<{}, any, {}, any>, res: Response<GetMyOrdersResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const userId = req.user?.id;
     const payload = (req as any).validated?.query as GetOrdersForAdminQuery;
@@ -83,7 +84,7 @@ export const getMyOrders = async (req: Request<{}, any, {}, any>, res: Response,
     }
 }
 
-export const updateOrder = async (req: Request<GetOrderParam, any, UpdateOrderBody, any>, res: Response, next: NextFunction) => {
+export const updateOrder = async (req: Request<GetOrderParam, any, UpdateOrderBody, any>, res: Response<UpdateOrderResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const body = req.body;
     const order_id = req.params.id;

@@ -4,10 +4,11 @@ import { ProductImageService } from "../service/product-image.service";
 import { CreateProductImageBody, GetProductImageParam, GetProductImagesPatam, UpdateProductImageBody } from "../validators/product-image.validator";
 import Postgres from "../connection/postgres";
 import { createError } from "../helpers/error";
+import { CreateProductImageResponse, DeleteProductImageResponse, GetProductImageResponse, GetProductImagesResponse, UpdateProductImageResponse } from "../response/product-image.response";
 
 const productImageService = new ProductImageService();
 
-export const createProductImage = async (req: Request<{}, any, CreateProductImageBody>, res: Response, next: NextFunction) => {
+export const createProductImage = async (req: Request<{}, any, CreateProductImageBody>, res: Response<CreateProductImageResponse>, next: NextFunction) => {
     const transaction = await Postgres.getInstance().transaction();
     const files = req.files as Express.Multer.File[] || [];
     const fileNames = files.map(file => file.filename);
@@ -39,7 +40,7 @@ export const createProductImage = async (req: Request<{}, any, CreateProductImag
     }
 }
 
-export const getProductImage = async (req: Request<GetProductImageParam>, res: Response, next: NextFunction) => {
+export const getProductImage = async (req: Request<GetProductImageParam>, res: Response<GetProductImageResponse>, next: NextFunction) => {
     try {
         const id = req.params.id;
         const productImage = await productImageService.getProductImage(id);
@@ -51,7 +52,7 @@ export const getProductImage = async (req: Request<GetProductImageParam>, res: R
     }
 };
 
-export const getProductImages = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getProductImages = async (req: Request<{}, any, {}, any>, res: Response<GetProductImagesResponse>, next: NextFunction) => {
     try {
         const query = req.query as GetProductImagesPatam;
         const productImages = await productImageService.getProuctImages(query.product_id);
@@ -65,7 +66,7 @@ export const getProductImages = async (req: Request<{}, any, {}, any>, res: Resp
 
 export const updateProductImage = async (
     req: Request<GetProductImageParam, any, UpdateProductImageBody>,
-    res: Response,
+    res: Response<UpdateProductImageResponse>,
     next: NextFunction
 ) => {
     try {
@@ -79,14 +80,14 @@ export const updateProductImage = async (
             success: true,
             message: "Image updated",
             data: updatedImage
-        });
+        } as UpdateProductImageResponse);
 
     } catch (error) {
         next(error);
     }
 };
 
-export const deleteProductImage = async ( req: Request<GetProductImageParam>, res: Response, next: NextFunction) => {
+export const deleteProductImage = async ( req: Request<GetProductImageParam>, res: Response<DeleteProductImageResponse>, next: NextFunction) => {
     try {
         const id = req.params.id;
         const productImage = await productImageService.getProductImage(id);

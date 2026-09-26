@@ -3,10 +3,11 @@ import { CreateSettingsBody, GetSettingsParams, GetSettingsQuery, UpdateSettings
 import SettingsService from "../service/settings.service";
 import { createError } from "../helpers/error";
 import { removeUndefined } from "../utils/removeUndefined";
+import { CreateSettingsResponse, GetSettingResponse, GetSettingsResponse, UpdateSettingsResponse } from "../response/settings.response";
 
 const settingsService = new SettingsService();
 
-export const createSettings = async (req: Request<{}, any, CreateSettingsBody>, res: Response, next: NextFunction) => {
+export const createSettings = async (req: Request<{}, any, CreateSettingsBody>, res: Response<CreateSettingsResponse>, next: NextFunction) => {
   try {
     const body = req.body;
     const user_role = req.user?.role;
@@ -18,7 +19,7 @@ export const createSettings = async (req: Request<{}, any, CreateSettingsBody>, 
   }
 };
 
-export const getSetting = async (req: Request<GetSettingsParams>, res: Response, next: NextFunction) => {
+export const getSetting = async (req: Request<GetSettingsParams>, res: Response<GetSettingResponse>, next: NextFunction) => {
   try {
     const params = req.params;
     const user_role = req.user?.role;
@@ -31,7 +32,7 @@ export const getSetting = async (req: Request<GetSettingsParams>, res: Response,
   }
 };
 
-export const getSettings = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getSettings = async (req: Request<{}, any, {}, any>, res: Response<GetSettingsResponse>, next: NextFunction) => {
   try {
     const user_role = req.user?.role;
     if (!user_role) throw createError("Forbidden", 403);
@@ -43,7 +44,7 @@ export const getSettings = async (req: Request<{}, any, {}, any>, res: Response,
   }
 };
 
-export const updateSettings = async (req: Request<GetSettingsParams, any, UpdateSettingsBody>, res: Response, next: NextFunction) => {
+export const updateSettings = async (req: Request<GetSettingsParams, any, UpdateSettingsBody>, res: Response<UpdateSettingsResponse>, next: NextFunction) => {
   try {
     const params = req.params;
     const body = req.body;

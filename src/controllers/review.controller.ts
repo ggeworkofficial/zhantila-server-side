@@ -3,10 +3,11 @@ import { ReviewService } from '../service/review.service';
 import { CreateReviewBody, GetReviewParam, GetReviewParamWithUser, GetReviewsParam, UpdateReviewBody } from '../validators/review.validator';
 import { UniqueConstraintError } from "sequelize";
 import { createError } from '../helpers/error';
+import { CreateReviewResponse, DeleteReviewResponse, GetAllReviewsResponse, GetReviewResponse, UpdateReviewResponse } from '../response/review.response';
 
 const reviewService = new ReviewService();
 
-export const createReview = async (req: Request<{}, any, CreateReviewBody>, res: Response, next: NextFunction) => {
+export const createReview = async (req: Request<{}, any, CreateReviewBody>, res: Response<CreateReviewResponse>, next: NextFunction) => {
     try {
         const data = req.body;
         const user_id = req.user?.id;
@@ -28,7 +29,7 @@ export const createReview = async (req: Request<{}, any, CreateReviewBody>, res:
     }
 };
 
-export const getReview = async (req: Request<GetReviewParam>, res: Response, next: NextFunction) => {
+export const getReview = async (req: Request<GetReviewParam>, res: Response<GetReviewResponse>, next: NextFunction) => {
     try {
         const { id } = req.params;
         const result = await reviewService.getOne(id);
@@ -38,7 +39,7 @@ export const getReview = async (req: Request<GetReviewParam>, res: Response, nex
     }
 };
 
-export const getAllReviews = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getAllReviews = async (req: Request<{}, any, {}, any>, res: Response<GetAllReviewsResponse>, next: NextFunction) => {
     try {
         const query = (req as any).validated?.query as GetReviewsParam;
         const result = await reviewService.getAll(query);
@@ -48,7 +49,7 @@ export const getAllReviews = async (req: Request<{}, any, {}, any>, res: Respons
     }
 };
 
-export const updateReview = async (req: Request<GetReviewParam, any, UpdateReviewBody>, res: Response, next: NextFunction) => {
+export const updateReview = async (req: Request<GetReviewParam, any, UpdateReviewBody>, res: Response<UpdateReviewResponse>, next: NextFunction) => {
     try {
         const data = req.body;
         const review_id = req.params.id;
@@ -66,7 +67,7 @@ export const updateReview = async (req: Request<GetReviewParam, any, UpdateRevie
     }
 };
 
-export const deleteReview = async (req: Request<GetReviewParam>, res: Response, next: NextFunction) => {
+export const deleteReview = async (req: Request<GetReviewParam>, res: Response<DeleteReviewResponse>, next: NextFunction) => {
     try {
         const review_id = req.params.id;
         const user_id = req.user?.id;

@@ -3,17 +3,29 @@ import userService from "../service/user.service";
 import { CreateUserPayload } from "../repositories/auth.repository";
 import { FindUsersOptions } from "../repositories/user.repository";
 import { CreateUserBody, GetOneUserParams, GetUserQuery, UpdateUserBody } from "../validators/user.validator";
+import { createError } from "../helpers/error";
+import Postgres from "../connection/postgres";
+import { CreateUserResponse, DeleteUserResponse, GetAllUsersResponse, GetOneUserResponse, UpdateUserResponse } from "../response/user.response";
 
-export const createUser = async (req: Request<{}, any, CreateUserBody>, res: Response, next: NextFunction) => {
+export const createUser = async (req: Request<{}, any, CreateUserBody>, res: Response<CreateUserResponse>, next: NextFunction) => {
+  const transaction = await Postgres.sequelize.transaction();
   try {
-    const user = await userService.create(req.body);
+    const data = req.body;
+
+    const user_id = req.user?.id
+    if(!user_id) throw createError("Forbidden", 403);
+
+    const user = await userService.create(data, user_id, transaction);
+    await transaction.commit();
+
     return res.status(201).json({success: true, message: "User created", data: user });
   } catch (error) {
+    await transaction.rollback();
     next(error);
   }
 };
 
-export const getUser = async (req: Request<GetOneUserParams>, res: Response, next: NextFunction) => {
+export const getUser = async (req: Request<GetOneUserParams>, res: Response<GetOneUserResponse>, next: NextFunction) => {
   try {
     const id = req.params.id;
     const user = await userService.findOne(id);
@@ -23,7 +35,7 @@ export const getUser = async (req: Request<GetOneUserParams>, res: Response, nex
   }
 };
 
-export const getUsers = async (req: Request<{}, any, any, any>, res: Response, next: NextFunction) => {
+export const getUsers = async (req: Request<{}, any, any, any>, res: Response<GetAllUsersResponse>, next: NextFunction) => {
   try {
     const query = (req as any).validated?.query as GetUserQuery;
     const result = await userService.findAll(query);
@@ -34,11 +46,13 @@ export const getUsers = async (req: Request<{}, any, any, any>, res: Response, n
 };
 
 
-export const updateUser = async (req: Request<GetOneUserParams, any, UpdateUserBody>, res: Response, next: NextFunction) => {
-    try {
+export const updateUser = async (req: Request<GetOneUserParams, any, UpdateUserBody>, res: Response<UpdateUserResponse>, next: NextFunction) => {   
+  try {
         const id = req.params.id;
-        const isAdmin = req.user?.role === "admin";
-        const user = await userService.update(id, req.body, isAdmin);
+        const user_id = req.user?.id
+
+        if(!user_id) throw createError("Unauthorized", 401);
+        const user = await userService.update(id, req.body, user_id);
         return res.status(200).json({ success: true, message: "User updated", data: user });
 
     } catch (error) {
@@ -46,7 +60,7 @@ export const updateUser = async (req: Request<GetOneUserParams, any, UpdateUserB
     }
 }
 
-export const deleteUser = async (req: Request<GetOneUserParams>, res: Response, next: NextFunction) => {
+export const deleteUser = async (req: Request<GetOneUserParams>, res: Response<DeleteUserResponse>, next: NextFunction) => {
   try {
     const id = req.params.id;
     await userService.delete(id);

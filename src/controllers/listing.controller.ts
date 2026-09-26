@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import Postgres from '../connection/postgres';
 import { ListingService } from '../service/listing.service';
+import { CreateListingResponse, DeleteListingResponse, GetListingByProductResponse, GetListingResponse, GetListingsResponse, GetMyListingsResponse, ModerateListingResponse, UpdateListingResponse } from '../response/listing.response';
 
 const listingService = new ListingService();
 
 export class ListingController {
-  public async createListing(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async createListing(req: Request, res: Response<CreateListingResponse>, next: NextFunction): Promise<void> {
     const transaction = await Postgres.getInstance().transaction();
     let committed = false;
     try {
@@ -26,7 +27,7 @@ export class ListingController {
     }
   }
 
-  public async getListings(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getListings(req: Request, res: Response<GetListingsResponse>, next: NextFunction): Promise<void> {
     try {
       const page = Number(req.query.page ?? 1);
       const limit = Number(req.query.limit ?? 10);
@@ -52,7 +53,7 @@ export class ListingController {
     }
   }
 
-  public async getMyListings(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getMyListings(req: Request, res: Response<GetMyListingsResponse>, next: NextFunction): Promise<void> {
     try {
       const user_id = req.user!.id;
       const page = Number(req.query.page ?? 1);
@@ -66,7 +67,7 @@ export class ListingController {
     }
   }
 
-  public async getListing(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getListing(req: Request, res: Response<GetListingResponse>, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
 
@@ -78,7 +79,7 @@ export class ListingController {
     }
   }
 
-  public async getListingByProduct(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getListingByProduct(req: Request, res: Response<GetListingByProductResponse>, next: NextFunction): Promise<void> {
     try {
       const { productId } = req.params;
 
@@ -90,7 +91,7 @@ export class ListingController {
     }
   }
 
-  public async updateListing(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async updateListing(req: Request, res: Response<UpdateListingResponse>, next: NextFunction): Promise<void> {
     const transaction = await Postgres.getInstance().transaction();
     let committed = false;
     try {
@@ -112,7 +113,7 @@ export class ListingController {
     }
   }
 
-  public async deleteListing(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async deleteListing(req: Request, res: Response<DeleteListingResponse>, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
 
@@ -124,7 +125,7 @@ export class ListingController {
     }
   }
 
-  public async moderateListing(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async moderateListing(req: Request, res: Response<ModerateListingResponse>, next: NextFunction): Promise<void> {
     const transaction = await Postgres.getInstance().transaction();
     try {
       const { id } = req.params;

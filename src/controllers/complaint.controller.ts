@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { ComplaintService } from '../service/complaint.service';
 import { CreateComplaintBody, GetComplaintParam, GetComplaintsQuery, UpdateComplaintBody } from '../validators/complaint.validator';
 import { createError } from '../helpers/error';
+import { CreateComplaintResponse, GetAllComplaintsResponse, GetComplaintResponse, UpdateComplaintResponse } from '../response/complaint.response';
 
 const complaintService = new ComplaintService();
 
-export const createComplaint = async (req: Request<{}, any, CreateComplaintBody>, res: Response, next: NextFunction) => {
+export const createComplaint = async (req: Request<{}, any, CreateComplaintBody>, res: Response<CreateComplaintResponse>, next: NextFunction) => {
     const data = req.body;
     const user_id = req.user?.id;
     try {
@@ -21,7 +22,7 @@ export const createComplaint = async (req: Request<{}, any, CreateComplaintBody>
   }
 };
 
-export const getComplaint = async (req: Request<GetComplaintParam>, res: Response, next: NextFunction) => {
+export const getComplaint = async (req: Request<GetComplaintParam>, res: Response<GetComplaintResponse>, next: NextFunction) => {
     const { id } = req.params;
     const user_id = req.user?.id;
     const user_role = req.user?.role;
@@ -36,7 +37,7 @@ export const getComplaint = async (req: Request<GetComplaintParam>, res: Respons
     }
 };
 
-export const getAllComplaints = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getAllComplaints = async (req: Request<{}, any, {}, any>, res: Response<GetAllComplaintsResponse>, next: NextFunction) => {
     const user_id = req.user?.id;
     const user_role = req.user?.role;
     const query = (req as any).validated?.query as GetComplaintsQuery;
@@ -51,7 +52,7 @@ export const getAllComplaints = async (req: Request<{}, any, {}, any>, res: Resp
     }
 };
 
-export const updateComplaint = async (req: Request<GetComplaintParam, any, UpdateComplaintBody>, res: Response, next: NextFunction) => {
+export const updateComplaint = async (req: Request<GetComplaintParam, any, UpdateComplaintBody>, res: Response<UpdateComplaintResponse>, next: NextFunction) => {
     const user_id = req.user?.id;
     const user_role = req.user?.role;
     const complaint_id = req.params.id;

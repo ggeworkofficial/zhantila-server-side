@@ -2,10 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import { CreatePaymentAccountBody, GetPaymentAccountParams, GetPaymentAccountsQuery, UpdatePaymentAccountBody } from "../validators/payment-account.validator";
 import PaymentAccountService from "../service/payment-account.service";
 import { createError } from "../helpers/error";
+import { CreatePaymentAccountResponse, DeletePaymentAccountResponse, GetPaymentAccountResponse, GetPaymentAccountsResponse, UpdatePaymentAccountResponse } from "../response/payment-account.response";
 
 const paymentAccountService = new PaymentAccountService();
 
-export const createPaymentAccount = async (req: Request<{}, any, CreatePaymentAccountBody>, res: Response, next: NextFunction) => {
+export const createPaymentAccount = async (req: Request<{}, any, CreatePaymentAccountBody>, res: Response<CreatePaymentAccountResponse>, next: NextFunction) => {
   try {
     const body = req.body;
     const user_role = req.user?.role;
@@ -19,7 +20,7 @@ export const createPaymentAccount = async (req: Request<{}, any, CreatePaymentAc
   }
 };
 
-export const getPaymentAccount = async (req: Request<GetPaymentAccountParams>, res: Response, next: NextFunction) => {
+export const getPaymentAccount = async (req: Request<GetPaymentAccountParams>, res: Response<GetPaymentAccountResponse>, next: NextFunction) => {
   try {
     const params = req.params;
     const account = await paymentAccountService.getPaymentAccount(params);
@@ -29,7 +30,7 @@ export const getPaymentAccount = async (req: Request<GetPaymentAccountParams>, r
   }
 };
 
-export const getPaymentAccounts = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getPaymentAccounts = async (req: Request<{}, any, {}, any>, res: Response<GetPaymentAccountsResponse>, next: NextFunction) => {
   try {
     const query = (req as any).validated?.query as GetPaymentAccountsQuery;
     const accounts = await paymentAccountService.getPaymentAccounts(query);
@@ -39,7 +40,7 @@ export const getPaymentAccounts = async (req: Request<{}, any, {}, any>, res: Re
   }
 };
 
-export const updatePaymentAccount = async (req: Request<GetPaymentAccountParams, any, UpdatePaymentAccountBody>, res: Response, next: NextFunction) => {
+export const updatePaymentAccount = async (req: Request<GetPaymentAccountParams, any, UpdatePaymentAccountBody>, res: Response<UpdatePaymentAccountResponse>, next: NextFunction) => {
   try {
     const params = req.params;
     const body = req.body;
@@ -54,7 +55,7 @@ export const updatePaymentAccount = async (req: Request<GetPaymentAccountParams,
   }
 };
 
-export const deletePaymentAccount = async (req: Request<GetPaymentAccountParams>, res: Response, next: NextFunction) => {
+export const deletePaymentAccount = async (req: Request<GetPaymentAccountParams>, res: Response<DeletePaymentAccountResponse>, next: NextFunction) => {
   try {
     const params = req.params;
     const user_role = req.user?.role;

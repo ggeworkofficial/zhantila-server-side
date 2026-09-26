@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { FollowService } from '../service/follow.service';
+import { FollowResponse, GetFollowersResponse, GetFollowingResponse, GetStateResponse, UnfollowResponse } from '../response/follow.response';
 
 const followService = new FollowService();
 
 export class FollowController {
-  public async getState(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getState(req: Request, res: Response<GetStateResponse>, next: NextFunction): Promise<void> {
     try {
       const { sellerId } = req.params;
 
@@ -16,7 +17,7 @@ export class FollowController {
     }
   }
 
-  public async follow(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async follow(req: Request, res: Response<FollowResponse>, next: NextFunction): Promise<void> {
     try {
       const { seller_id } = req.body;
       const follower_id = req.user!.id;
@@ -29,7 +30,7 @@ export class FollowController {
     }
   }
 
-  public async unfollow(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async unfollow(req: Request, res: Response<UnfollowResponse>, next: NextFunction): Promise<void> {
     try {
       const { sellerId } = req.params;
       const follower_id = req.user!.id;
@@ -42,7 +43,7 @@ export class FollowController {
     }
   }
 
-  public async getFollowing(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getFollowing(req: Request, res: Response<GetFollowingResponse>, next: NextFunction): Promise<void> {
     try {
       const follower_id = req.user!.id;
       const page = Number(req.query.page ?? 1);
@@ -56,7 +57,7 @@ export class FollowController {
     }
   }
 
-  public async getFollowers(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getFollowers(req: Request, res: Response<GetFollowersResponse>, next: NextFunction): Promise<void> {
     try {
       const { sellerId } = req.params;
       const page = Number(req.query.page ?? 1);

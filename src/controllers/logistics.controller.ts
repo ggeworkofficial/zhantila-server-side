@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import LogisticsService from "../service/logistics.service";
 import { CreateLogisticsBody, GetLogisticsParam, GetLogisticsQuery, UpdateLogisticsBody } from "../validators/logistics.validator";
 import { createError } from "../helpers/error";
+import { CreateLogisticsResponse, GetLogisticsListResponse, GetLogisticsResponse, UpdateLogisticsResponse } from "../response/logistics.response";
 
 const logisticsService = new LogisticsService();
 
-export const createLogistics = async (req: Request<{}, any, CreateLogisticsBody>, res: Response, next: NextFunction) => {
+export const createLogistics = async (req: Request<{}, any, CreateLogisticsBody>, res: Response<CreateLogisticsResponse>, next: NextFunction) => {
   const body = req.body;
   const user_id = req.user?.id;
   const user_role = req.user?.role;
@@ -21,7 +22,7 @@ export const createLogistics = async (req: Request<{}, any, CreateLogisticsBody>
   }
 };
 
-export const getLogistics = async (req: Request<GetLogisticsParam>, res: Response, next: NextFunction) => {
+export const getLogistics = async (req: Request<GetLogisticsParam>, res: Response<GetLogisticsResponse>, next: NextFunction) => {
   const { id } = req.params;
   const user_id = req.user?.id;
   const user_role = req.user?.role;
@@ -37,7 +38,7 @@ export const getLogistics = async (req: Request<GetLogisticsParam>, res: Respons
   }
 };
 
-export const getLogisticsList = async (req: Request<{}, any, {}, any>, res: Response, next: NextFunction) => {
+export const getLogisticsList = async (req: Request<{}, any, {}, any>, res: Response<GetLogisticsListResponse>, next: NextFunction) => {
   const user_id = req.user?.id;
   const user_role = req.user?.role;
   const query = (req as any).validated?.query as GetLogisticsQuery;
@@ -53,7 +54,7 @@ export const getLogisticsList = async (req: Request<{}, any, {}, any>, res: Resp
   }
 };
 
-export const updateLogistics = async (req: Request<GetLogisticsParam, any, UpdateLogisticsBody>, res: Response, next: NextFunction) => {
+export const updateLogistics = async (req: Request<GetLogisticsParam, any, UpdateLogisticsBody>, res: Response<UpdateLogisticsResponse>, next: NextFunction) => {
   const { id } = req.params;
   const body = req.body;
   const user_id = req.user?.id;
