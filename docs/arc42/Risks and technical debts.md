@@ -1,0 +1,7 @@
+## 9. Risks and Technical Debts
+
+| **Risk** | **Description** |
+| --- | --- |
+| Listing performance degradation | The listing feed may experience increased response times as user traffic and listing volume grow. Without appropriate database indexing and caching of frequently accessed feeds, feed requests may require increasingly expensive database queries, potentially creating performance bottlenecks under high traffic. |
+| Scalability Limitations of the modular monolith | As user traffic and transaction volume grow significantly, the modular monolith may encounter scalability limitations if application resource requirements exceed the capacity of the existing deployment architecture. Without appropriate performance optimization, resource scaling, and architectural adjustments, the system may experience increased response times, reduced throughput, or service availability issues. If these limitations cannot be adequately addressed within the monolithic architecture, migrating selected modules to microservices may become necessary. |
+| Lack of Payment Gateway Integration | Zhantila currently relies on external bank transfers and receipt-image uploads rather than an integrated payment gateway. This approach requires manual payment verification and may increase transaction processing delays, fraudulent receipt submissions, payment disputes, and operational overhead as transaction volume grows. It may also create friction during checkout, potentially reducing buyer confidence and transaction completion rates. |
