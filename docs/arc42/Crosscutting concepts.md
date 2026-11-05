@@ -1,14 +1,14 @@
-# 7. Crosscutting Concepts
+## 7. Crosscutting Concepts
 
-## 7.1. Authentication and Authorization
+### 7.1. Authentication and Authorization
 
-### Authentication
+#### Authentication
 
 Authentication establishes the identity of a user making a request to Zhantila. Authentication is performed by common middleware at the route layer. Requests that require authentication must be verified before being passed to the controller. Requests with missing or invalid authentication credentials are rejected with HTTP `401 Unauthorized`.
 
-### Authorization
+#### Authorization
 
-Authorization determines whether an authenticated user is permitted to perform a requested action. Zhantila uses role-based access control (RBAC) at two scopes: platform scope and shop scope. All authorization checks are performed within the service layer through a common authorization implementation.
+Authorization determines whether an authenticated user is permitted to perform a requested action. Zhantila uses role-based access control (RBAC) at the platform scope. All authorization checks are performed within the service layer through a common authorization implementation.
 
 **Platform-scope RBAC:** Platform-scope RBAC determines which platform-level actions a user may perform. Permissions are mapped to platform roles. The exact platform roles are yet to be defined.
 
@@ -18,9 +18,9 @@ If an authenticated user does not have the required permissions, the operation i
 
 ---
 
-## 7.2. Error Handler and Response
+### 7.2. Error Handler and Response
 
-### Successful Responses
+#### Successful Responses
 
 Successful API responses are returned by controllers using a standardized response structure. Response schemas are defined to maintain consistency and type safety across the API.
 
@@ -38,7 +38,7 @@ The `success` field indicates that the operation completed successfully, `messag
 
 Controllers return the appropriate HTTP status code according to the operation's outcome.
 
-### Error Handling
+#### Error Handling
 
 Errors encountered during request processing are forwarded to centralized error-handling middleware. The middleware determines the appropriate HTTP status code and returns a standardized error response.
 
@@ -60,23 +60,23 @@ This centralized approach ensures that API responses remain consistent, simplifi
 
 ---
 
-## 7.3 Validation
+### 7.3 Validation
 
 Zhantila applies validation at three levels: request validation, business-rule validation, and data integrity enforcement. Each level serves a different purpose within the layered architecture.
 
-### Request Validation
+#### Request Validation
 
 Request validation is performed in the route layer through a common validator middleware. The middleware accepts custom Zod schemas to validate incoming request data, including request bodies, query parameters, and route parameters, as applicable.
 
 TypeScript types are inferred from the corresponding schemas to provide compile-time type safety. Requests that fail validation are rejected with HTTP `400 Bad Request` before reaching the controller.
 
-### Business-Rule Validation
+#### Business-Rule Validation
 
 Business-rule validation is performed in the service layer. It ensures that operations comply with Zhantila's business rules and current application state. The specific checks depend on the operation and business domain.
 
 One example is verifying product stock availability.
 
-### Data Integrity Enforcement
+#### Data Integrity Enforcement
 
 Data integrity is enforced through Sequelize model validations and constraints, supported by PostgreSQL database constraints. These mechanisms help prevent invalid or inconsistent data from being persisted.
 
@@ -86,17 +86,17 @@ This layered approach separates incoming request validation, business-rule enfor
 
 ---
 
-## 7.4. Logging
+### 7.4. Logging
 
 Zhantila uses a centralized logging utility to provide consistent application logging and audit logging across the system.
 
-### Application Logging
+#### Application Logging
 
 Application logging records relevant application events, errors, and diagnostic information to support troubleshooting and system maintenance. A shared logger is accessible to all modules, with logging performed where relevant events or failures occur. Centralized error-handling middleware records unhandled request errors before returning standardized error responses to clients.
 
 Logs use a consistent format containing information such as timestamps, severity levels, messages, and request identifiers. Sensitive information, including passwords, authentication tokens, and session cookies, must not be logged. Initially, application logs are written to the application output streams and can be collected by external logging infrastructure in the future.
 
-### Audit Logging
+#### Audit Logging
 
 Audit logging records significant security-sensitive and business-critical actions to provide traceability and support accountability. Events may include authentication attempts, permission changes, administrative actions, shop verification decisions, listing moderation, and other important operations.
 
@@ -108,7 +108,7 @@ Together, application logging and audit logging support troubleshooting, securit
 
 ---
 
-## 7.5. Settings
+### 7.5. Settings
 
 Settings is a cross-cutting concern responsible for managing configurable behavior and preferences throughout the Zhantila platform.
 
@@ -119,7 +119,7 @@ Settings is divided into two categories:
 - **Platform Settings:** Configuration that affects the overall behavior or availability of platform features.
 - **User Settings:** Preferences that belong to individual users and influence their personal experience.
 
-### Platform Settings
+#### Platform Settings
 
 Platform Settings define configurable behavior that applies across Zhantila.
 
@@ -128,10 +128,10 @@ These settings are managed at the platform level and may influence the availabil
 **Initial scope:**
 
 | **Setting** | **Description** |
-|---|---|
+| --- | --- |
 | Reseller Availability | Determines whether the reseller functionality is enabled or disabled across the platform. |
 
-### User Settings
+#### User Settings
 
 User Settings represent individual preferences that determine how users experience and interact with Zhantila.
 
@@ -140,6 +140,6 @@ Each user maintains their own preferences, which should not affect other users o
 **Initial scope:**
 
 | **Setting** | **Description** |
-|---|---|
+| --- | --- |
 | Notification Preference | Determines the user's preferences for receiving notifications. |
 | Language Preference | Determines the preferred language for the user's experience within Zhantila. |
