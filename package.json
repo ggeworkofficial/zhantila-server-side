@@ -7,7 +7,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only src/Server.ts",
     "build": "tsc",
-    "start": "node dist/Server.js"
+    "start": "node dist/Server.js",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo",
+    "db:migrate:undo:all": "sequelize-cli db:migrate:undo:all",
+    "db:migrate:status": "sequelize-cli db:migrate:status",
+    "db:migrate:create": "sequelize-cli migration:generate",
+    "seed:generate": "sequelize-cli seed:generate",
+    "seed": "sequelize-cli db:seed:all",
+    "seed:undo": "sequelize-cli db:seed:undo",
+    "seed:undo:all": "sequelize-cli db:seed:undo:all"
   },
   "repository": {
     "type": "git",
